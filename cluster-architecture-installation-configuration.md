@@ -4,6 +4,40 @@
 
 Doc: https://kubernetes.io/docs/reference/access-authn-authz/rbac/
 
+## Manage role based access control (RBAC)
+
+<details><summary>Solution</summary>
+
+Questions:
+- Create a service account name dev-sa in default namespace, and dev-sa can create below components in dev namespace.
+
+  - Deployment
+  - StatefulSet
+  - DaemonSet
+<details><summary>Solution</summary>
+<p>
+1. create as service account in default namespace
+
+```bash
+$ kubectl create sa dev-sa -n default
+```
+2. create role for the service account
+
+```bash
+$ kubectl create role sa-role -n dev --resource=deployment,statefulset,daemonset --verb=create
+$ kubectl create rolebinding sa-rb -n dev --role=sa-role --serviceaccount=default:dev-sa
+```
+
+3. verify 
+
+```bash
+$ kubectl auth can-i create deployment -n dev --as=system:serviceaccount:default:dev-sa
+yes
+```
+</p>
+</details>
+</details>
+
 ## Use KubeADM to install a basic cluster
 
 <details><summary>Solution</summary>
