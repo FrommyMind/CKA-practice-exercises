@@ -13,6 +13,99 @@ Doc: https://kubernetes.io/docs/concepts/cluster-administration/networking/
 Doc: https://kubernetes.io/docs/concepts/services-networking/service/
 
 Questions:
+- Create a pod name pod-nginx with the latest nginx image
+- Expose it's port 80 through a service of type NodePort name service-nginx.
+- Then create a pod use image busybox to nslookup the pod pod-nginx and service service-nginx.
+
+<details><summary>Solution</summary>
+<p>
+
+1. create a pod with name pod-nginx
+create the yaml file for pod-nginx
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: pod-nginx
+  name: pod-nginx
+spec:
+  containers:
+  - image: nginx:latest
+    name: pod-nginx
+```
+
+```bash
+$ kubectl apply -f pod-nginx.yaml
+```
+
+2. use expose command to create a service yaml file
+
+```bash
+ $ kubectl expose pod pod-nginx --type=NodePort --port=80  --name=service-nginx --dry-run=client -o yaml > service-nginx.yaml
+```
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    run: pod-nginx
+  name: service-nginx
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+    nodePort: 30080
+  selector:
+    run: pod-nginx
+  type: NodePort
+status:
+  loadBalancer: {}
+```
+
+3. create service
+
+```bash
+ $ kubectl apply -f  service-nginx.yaml
+```
+
+4. create another pod run nslookup
+
+```bash
+$ kubectl run pod-nslookup  --image=busybox  --command sleep 3600
+
+
+$ kubectl get pod pod-nginx  -owide
+NAME        READY   STATUS    RESTARTS   AGE   IP            NODE    NOMINATED NODE   READINESS GATES
+pod-nginx   1/1     Running   0          14m   10.244.1.57   k8s-2   <none>           <none>
+
+$ kubectl  exec -it pod-nslookup -- nslookup 10.244.1.57
+Server:         10.96.0.10
+Address:        10.96.0.10:53
+
+57.1.244.10.in-addr.arpa        name = 10-244-1-57.service-nginx.default.svc.cluster.local
+
+$ kubectl get svc service-nginx -owide
+NAME            TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE     SELECTOR
+service-nginx   NodePort   10.98.201.48   <none>        80:30080/TCP   8m47s   run=pod-nginx
+
+$  kubectl  exec -it pod-nslookup -- nslookup  10.98.201.48
+Server:         10.96.0.10
+Address:        10.96.0.10:53
+
+48.201.98.10.in-addr.arpa       name = service-nginx.default.svc.cluster.local
+
+
+```
+
+</p>
+</details>
+
+Questions:
 - Create a deployment with the latest nginx image and two replicas.
 - Expose it's port 80 through a service of type NodePort.
 - Show all elements, including the endpoints.
