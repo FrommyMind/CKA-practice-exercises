@@ -426,6 +426,34 @@ scalable-6bbdb8895b-rh8cz   1/1     Running   0          6s
 </p>
 </details>
 
+
+Questions:
+- Scale an exist deployment name scal-nginx in namespace dev to three pod.
+
+<details><summary>Solution</summary>
+<p>
+
+1. get the exist deployment
+
+```bash
+$ kubectl get deployment -n dev
+
+```
+
+2. scale the deployment
+
+```bash
+$ kubectl scale -n dev  --replicas=3  deployment/scal-nginx
+```
+
+3. check the deployment
+
+```bash
+$ kubect -n dev get deploy scal-nginx
+```
+</p>
+</details>
+
 Questions:
 - Autoscale a deployment to have a minimum of two pods and a maximum of 6 pods and that transitions when cpu usage goes above 70%.
 
