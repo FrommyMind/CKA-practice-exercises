@@ -13,6 +13,25 @@ Doc: https://kubernetes.io/docs/concepts/cluster-administration/networking/
 Doc: https://kubernetes.io/docs/concepts/services-networking/service/
 
 Questions:
+- create a pod name httpd with image httpd:alpine in the default namespace.
+- create a service type ClusterIP by the same name(httpd) with the target port 80.
+
+<details><summary>Solution</summary>
+
+1. create a pod with name httpd with lab app=httpd
+
+```bash
+$ kubectl run httpd --image httpd:alpine -l app=httpd
+```
+
+2. create a service with name httpd and prot 80
+
+```
+$ kubectl create svc clusterip httpd --tcp=80 
+```
+</details>
+
+Questions:
 - Create a pod name pod-nginx with the latest nginx image
 - Expose it's port 80 through a service of type NodePort name service-nginx.
 - Then create a pod use image busybox to nslookup the pod pod-nginx and service service-nginx.
